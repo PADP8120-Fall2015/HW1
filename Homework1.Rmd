@@ -1,7 +1,7 @@
 
 ---
 title: "PADP8120_Homework1"
-author: "Fall 2015"
+author: "YOUR NAME HERE"
 date: "![Creative Commons Attribution License](images/cc-by.png)"
 output:
   html_document:
