@@ -1,8 +1,8 @@
 
 ---
 title: "PADP8120_Homework1"
-author: "Fall 2015"
-date: "![Creative Commons Attribution License](images/cc-by.png)"
+author: "Thomas K. Valentine"
+date: "Due: Friday, September 4, 2015"
 output:
   html_document:
     highlight: pygments
