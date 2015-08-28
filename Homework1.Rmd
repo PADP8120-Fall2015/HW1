@@ -30,6 +30,11 @@ The goal is to manipulate and explore a dataset with the `dplyr` package, comple
 
 Work with the [Gapminder excerpt](http://tiny.cc/gapminder) maintained by Jenny Bryan at UBC (i.e., the first part of this task will be to figure out how to load these data). Import the data with `read.delim()` and with `read.table()`. FYI: `read.delim()` is just a wrapper around `read.table()` with specific arguments set to certain values. [Read the documentation!](http://www.rdocumentation.org/packages/utils/functions/read.table)
 
+read.delim("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",head=TRUE)
+
+gapminder <- read.delim("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",head=TRUE)
+
+
   * Load the Gapminder data with both functions without specifying args other than `file`. Do you get the same resulting object in your workspace? Use all the ways we've learned to inspect an object to back up your claims with hard facts.
   * If you're not getting the same object, why not?
   * Develop the call to `read.table()` that is equivalent to `read.delim()`, i.e. how do you need to set various arguments and describe this in prose as well.
