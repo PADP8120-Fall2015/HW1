@@ -34,21 +34,21 @@ Work with the [Gapminder excerpt](http://tiny.cc/gapminder) maintained by Jenny 
 
 ```{r}
 #read.delim works properly
-gapminder <- read.delim("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE) 
+gapminder <- read.delim(file='http://tiny.cc/gapminder') 
+```
 
-#read.table produces fewer observations (1698, fails)
-gapminder2 <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE) 
+```{r}
+#read.table fails, produces error about line 146
+gapminder = read.table(file='http://tiny.cc/gapminder')  
 ```
 
   * If you're not getting the same object, why not?
-Read..table tells us that there is an error in line 145. This is related to the overall combined length
+Read.table tells us that there is an error in line 146. This is related to the overall combined length of "Bosnia and Herzegovina" as a country name. We have to tell it to seperate, using the sep="\t" command
 
   * Develop the call to `read.table()` that is equivalent to `read.delim()`, i.e. how do you need to set various arguments and describe this in prose as well.
 
 ```{r}
-read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE)
-
-gapminder2 <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE,sep='\t') 
+gapminder3 <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE,sep='\t') 
 ```
 
 ## Part B - Data smell test
