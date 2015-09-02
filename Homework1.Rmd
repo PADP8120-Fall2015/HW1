@@ -1,8 +1,8 @@
 
 ---
 title: "PADP8120_Homework1"
-author: "Thomas K. Valentine"
-date: "Due: Friday, September 4, 2015"
+author: "Fall 2015"
+date: "![Creative Commons Attribution License](images/cc-by.png)"
 output:
   html_document:
     highlight: pygments
@@ -10,7 +10,7 @@ output:
 widgets     : [mathjax]            # {mathjax, quiz, bootstrap}
 ---
 
-#Tests
+
 # Homework 1
 
 Guidelines: Homeworks should be clear and legible, with answers clearly indicated and work shown. Homeworks will be given a minus, check, or check plus owing to completion and correctness. You are welcome to work with others but please submit your own work. Your homework must be produced in an R Markdown (.rmd) file submitted via github. If you are having trouble accomplishing this, please refer to the [guide](http://spia.uga.edu/faculty_pages/tyler.scott/teaching/PADP8120_Fall2015/Homeworks/submitting_homework.shtml). This homework is adapted from the work of Jenny Bryan (http://www.stat.ubc.ca/~jenny/STAT545A/current.html)
@@ -31,25 +31,8 @@ The goal is to manipulate and explore a dataset with the `dplyr` package, comple
 Work with the [Gapminder excerpt](http://tiny.cc/gapminder) maintained by Jenny Bryan at UBC (i.e., the first part of this task will be to figure out how to load these data). Import the data with `read.delim()` and with `read.table()`. FYI: `read.delim()` is just a wrapper around `read.table()` with specific arguments set to certain values. [Read the documentation!](http://www.rdocumentation.org/packages/utils/functions/read.table)
 
   * Load the Gapminder data with both functions without specifying args other than `file`. Do you get the same resulting object in your workspace? Use all the ways we've learned to inspect an object to back up your claims with hard facts.
-
-```{r}
-#read.delim works properly
-gapminder <- read.delim(file='http://tiny.cc/gapminder') 
-```
-
-```{r}
-#read.table fails, produces error about line 146
-gapminder = read.table(file='http://tiny.cc/gapminder')  
-```
-
   * If you're not getting the same object, why not?
-Read.table tells us that there is an error in line 146. This is related to the overall combined length of "Bosnia and Herzegovina" as a country name. We have to tell it to seperate, using the sep="\t" command
-
   * Develop the call to `read.table()` that is equivalent to `read.delim()`, i.e. how do you need to set various arguments and describe this in prose as well.
-
-```{r}
-gapminder3 <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE,sep='\t') 
-```
 
 ## Part B - Data smell test
 
