@@ -1,0 +1,188 @@
+---
+title: "HW1_Parisi"
+author: "Jonathan Parisi"
+output: html_document
+---
+
+
+```{r, warning=FALSE, message=FALSE}
+#install.packages(c("plyr", "dplyr", "ggplot2"))
+library(plyr)
+library(dplyr)
+library(ggplot2)
+```
+
+The Arithmetic mean is equal to $\frac{1}{n} \sum_{i=1}^{n} x_{i}$. 
+
+```{r, warning=FALSE, message=FALSE}
+#install.packages("gapminder)
+#library(gapminder)
+```
+
+**Part A**
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+gap.delim <- read.delim("http://tiny.cc/gapminder")
+dim(gap.delim)
+
+#gap.table <- read.table("http://tiny.cc/gapminder")
+```
+The objects are not the same, as read.delim works correctly, returning an object with 1,704 observations and 6 variables, while read.table experiences an error with line 146 and fails to create an object.
+
+To investigate the error, we print line 146 from our object gap.delim, which returns:
+`r gap.delim[146,]`
+
+With the help of a genius scientist, we surmise that the country name is causing the problem in line 146, and we "realize" we can solve that by specifying the delimiter for the gapminder data. We use the following code:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+gap.table = read.table(file='http://tiny.cc/gapminder',sep='\t',header=T)
+dim(gap.table)
+```
+
+However, note that after checking the dimensions, we have 6 fewer observations in this object than in gap.delim, using the read.delim function. There is a problem with Cote D'Ivoire in the read.table generated object, so we revert to using our object gap.delim.
+
+We can test the records involving Cote d'Ivoire by indexing with the grep() function, as seen below.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+
+gap.delim[grep('Cote',gap.delim$country),]
+```
+
+Looks good!
+
+**Part B**
+
+
+We have several options for exploring our object:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+str(gap.delim)
+class(gap.delim)
+```
+
+Both str() and class() tell us that we are working with a dataframe. Str() shows us there are 6 variables and 1,704 observations.  There are several alternative methods. We could use the dim() function to show the number of rows and columns, and head() to show the first few observations, allowing us to see and count the variable names (aka column headers). We could also use the names() function for the variable names, and count their number. 
+
+**Part C**
+
+Let's explore GDP per capita (quantitative) and country (categorical). Forour quantitative variable, we can use summary() to acquire all possible values:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+summary(gap.delim$gdpPercap)
+```
+
+This shows that the GDP per capita in our sample ranges from 241.2 to 113,500.Using some other commands, we can discern that the lowest figure is for the Congo in 2002, and the highest for Kuwait in 1957. See below.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+gap.delim %>% filter(gdpPercap<245 | gdpPercap>113400)
+```
+
+For the categorical variable, we can use the unique() function to find all possible values:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+unique(gap.delim$country)
+```
+
+There are 142 countries in the dataset, from Afghanistan to Zimbabwe, in alphabetical order.
+
+For the quantitative variable, GDP per capita, the summary function used above gave us the mean, median and quartiles, from which we can get a sense of the dispersion of the data. Further, we can use summarise() to obtain the standard deviation:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+summarise(gap.delim,sd(gdpPercap, na.rm=TRUE))
+```
+**Part D**
+
+Task 1
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+summarise(group_by(gap.delim, continent), max(gdpPercap, na.rm=TRUE), min(gdpPercap, na.rm=TRUE))
+```
+Task 2
+
+Let's use a graph, with the nifty facet_wrap() function.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+ggplot(gap.delim, aes(x=year, y=gdpPercap)) + geom_point() + facet_wrap(~ continent)
+```
+
+
+
+
+
+
+
+Alternatively, to reduce the noise, we could look at just a few different years. This allows us to see the variation a little more clearly:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+ggplot(filter(gap.delim,year>1993), aes(x=year, y=gdpPercap)) + geom_point() + facet_wrap(~ continent)
+```
+Task 3
+
+Let's use group_by() to complete this task, with a 10% trim on each end of the data.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+summarise(group_by(gap.delim, year), mean(lifeExp, trim=0.1))
+```
+Task 4
+
+For Task 4, we can mirror our earlier graph of GDP per capita, using life expectancy instead. However, because the data points are so widely dispersed in each year, let's use a line graph instead.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+ggplot(gap.delim, aes(x=year, y=lifeExp)) + geom_smooth(lwd=1, color="green") + facet_wrap(~ continent)
+```
+It looks like life expectancy has risen pretty consistently on most continents over the time period. Unfortunately, the growth in Africa looks to have essentially plateaud since about 1985. We can take a closer look:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+gap.delim %>% filter(year>1980, continent=="Africa") %>% group_by(year) %>% summarise(mean(lifeExp, na.rm=TRUE))
+```
+As expected...
+
+Task 5
+
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+summary(gap.delim$lifeExp)
+```
+
+We see from the above that the 1st quartile of life expectancy worldwide is 48.20, while the median is 60.71. Let's choose an age of 50 as our threshold beneath which we will consider life expectancy "low".
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+gap.delim<-mutate(gap.delim, low.LE = lifeExp <50)
+gap.delim[1:15, "low.LE"]
+summarise(group_by(gap.delim, year, continent),sum(low.LE))
+```
+To test our results, let's manually list the observations from the Americas in 1957. We should see 8 countries that year with life expectancy below 50 years.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+filter(gap.delim, continent=="Americas", year==1957)
+```
+
+Voila!
+
+We will accompany the listed data with a graph. We see that there are 12 years in the dataset and 5 continents. We create a new dataframe object containing only summary level data regarding the number of countries with low life expectancy by continent by year. As expected, we have 60 observations of our 3 variables.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+unique(gap.delim$year)
+low.LE.byYear=summarise(group_by(gap.delim, year),sum(low.LE))
+dim(low.LE.byYear)
+head(low.LE.byYear, 20)
+
+sumvar.chart<-low.LE.byYear[,2]
+str(sumvar.chart)
+#ggplot(low.LE.byYear, aes(x=year, y=sumvar.chart) + geom_smooth(lwd=1, color="green") + facet_wrap(~ continent)
+
+```
+After multiple tries, apparently I cannot represent my data in graph form no matter what strategy I choose. Moving on...
+
+Task 6
+
+Looking at our earlier graph of GDP per capita, broken down by continent, we see some extreme outliers (high GDP per capita) in the data for Asia. Taking a closer look, we see that all outliers are attributed to the nation of Kuwait. From the 1950's through the late 1970's, Kuwait experienced GDP per capita much higher than its neighbors and most of the entire world. The cause of the differential is outside the scope of this exercise.
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+asia.variation<-gap.delim %>% filter(continent=="Asia", year<1987) %>% arrange(-gdpPercap)
+head(asia.variation, 20)
+Kuwaitdata<-filter(gap.delim, country=="Kuwait")
+plot(x=Kuwaitdata$year, y=Kuwaitdata$gdpPercap)
+```
+I had some additional ideas for exploration, but needed additional tools that I could not figure out on my own in the required time frame. For example, how to create a new variable for population change over prior year in dataset, and how to create a new variable assigning a "period", essentially dividing the observations into 15-20 year periods, for use as a facet_wrap variable.
+
+
