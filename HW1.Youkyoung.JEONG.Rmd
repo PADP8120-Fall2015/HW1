@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<br>
+<br>
+<p style="text-align:center"><span style="font-size:22pt">
+**Homework 1**</span></p>
+<p style="text-align:right"><span style="font-size:16pt">
+*Youkyoung JEONG*</span></p>
+<p style="text-align:right"><span style="font-size:16pt">
+*09.04.2015*</span></p>
+<br>
+<span style="font-size:16pt;color:#B70000">
+**Part A - Load gapminder data**</span>
+
+Import the data with <code>read.delim()</code> and with <code>read.table()</code>. 
+
+* Load the Gapminder data with both functions without specifying args other than file. Do you get the same resulting object in your workspace? Use all the ways we’ve learned to inspect an object to back up your claims with hard facts.
+```{r}
+gapminder <- read.delim("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt")
+str(gapminder)
+```
+
+```{r}
+# read.table function failed
+# gapminder.tab <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt")
+```
+<p style="margin-left:40px">: Without any settings, an error occured while loading the data set using <code>read.table()</code> function. On the other hand, <code>read.delim</code> seems to work well.</p><br>
+
+* If you’re not getting the same object, why not?
+
+<p style="margin-left:40px">: Since the raw data is separated by tap, <code>read.delim</code> worked well as reading in delimited text file. However, as the default setting of <code>read.table</code> clutter the texts, it failed to load the data.</p><br>
+
+
+* Develop the call to <code>read.table()</code> that is equivalent to <code>read.delim()</code>
+
+```{r}
+#Attach knitr
+library(knitr)
+
+#Using the option "sep"
+gapminder.tab <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt", sep="\t")
+```
+
+```{r results = 'asis'}
+kable(head(gapminder.tab))
+```
+
+<p style="margin-left:40px">: After setting the <code>sep</code> option to delimit the data by tap, <code>read.table</code> worked. However, as seen in the table above, the first row is recognized as one of the cases.</p>
+
+```{r}
+#Using the option "head"
+gapminder.tab.h <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",head=TRUE, sep="\t")
+```
+```{r results = 'asis'}
+kable(head(gapminder.tab.h))
+```
+
+<p style="margin-left:40px">: As using the option <code>head</code>, the first row is designated as column name.</p>
+
+```{r results = 'asis'}
+kable(gapminder.tab.h[361:366, ])
+```
+
+<p style="margin-left:40px">: However, as seen above, <code>read.table</code> seems to clutter the text file containing "Cote d'Ivoire." Thus, it was not possible to load the data with <code>read.table</code> exactly same as <code>read.delim</code>.</p>
+<br>
+
+
+<span style="font-size:16pt;color:#B70000">
+**Part B - Data smell test**</span>
+
+Explore your new data.frame.
+
+* Is it a data.frame, a matrix, a vector, a list?
+```{r}
+str(gapminder)
+```
+<p style="margin-left:40px">: It is a data frame.</p>
+<br>
+
+* What’s its mode, class?
+
+```{r}
+class(gapminder)
+```
+<p style="margin-left:40px">: Its class is 'data.frame.'</p>
+<br>
+
+* How many variables?
+
+<p style="margin-left:40px">: There are six variables.</p>
+<br>
+
+* How many rows/observations?
+
+<p style="margin-left:40px">: There are 1704 observations.</p>
+<br>
+
+* Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?
+
+```{r}
+ncol(gapminder)
+```
+<p style="margin-left:40px">: <code>ncol</code> can be used to identify the number of the variables.</p>
+<br>
+```{r}
+nrow(gapminder)
+```
+<p style="margin-left:40px">: <code>nrow</code> can be used to identify the number of the observations.</p>
+<br>
+```{r}
+dim(gapminder)
+```
+<p style="margin-left:40px">: <code>dim</code> can be used to identify the number of the variables and the observations of an object.</p>
+<br>
+
+<span style="font-size:16pt;color:#B70000">
+**Part C - Explore individual variables**</span>
+
+Pick at least one categorical variable and at least one quantitiative variable to explore.
+
+<p style="margin-left:40px">: I selected <code>continent</code> as a categorical variable and <code>lifeExp</code> as a quantitative variable.</p>
+<br>
+
+* Characterize what’s possible, i.e. all possible values or max vs. min … whatever’s appropriate.
+
+```{r}
+unique(gapminder$continent)
+```
+<p style="margin-left:40px">: To show all possible values in <code>continent</code>, I used <code>unique</code> functions. As above, the categorical variable <code>continent</code> has 5 different values.
+
+<br>
+
+To characterize the quantitative variable, I used <code>max</code> and <code>min</code>.
+```{r}
+max(gapminder$lifeExp)
+```
+
+```{r}
+min(gapminder$lifeExp)
+```
+
+<br>
+
+* What’s typical? What’s the spread? What’s the distribution?
+
+1. Typical value
+```{r}
+summary(gapminder$lifeExp)
+```
+
+<p style="margin-left:40px">: Table above indicates the median and the mean of the life expectancy, as well as the quartiles that can show the spread of the data.</p>
+
+2. Spread
+
+```{r}
+#Range
+max(gapminder$lifeExp)-min(gapminder$lifeExp)
+#Range command could also be used to show the maximum and minimum value
+range(gapminder$lifeExp)
+```
+
+```{r}
+#Standard deviation
+sd(gapminder$lifeExp)
+```
+<p style="margin-left:40px">: Along with the five-number summary, <code>range</code> and standard deviation(<code>sd</code>) can also show the spread of the data.</p>
+
+3. Distribution
+```{r}
+table(gapminder$continent)
+```
+```{r}
+barplot(table(gapminder$continent), main="Gapminder: Continents", col="#FF5E00")
+```
+<p style="margin-left:40px">: With <code>table</code> and <code>barplot</code> command, the frequency table and the bar plot of <code>continent</code> can be derived.</p>
+<br>
+```{r}
+hist(gapminder$lifeExp,main="Gapminder: Life Expectancy",xlab="Life Expectancy", col="#FFBB00")
+```
+<p style="margin-left:40px">: <code>hist</code> can be used to show the distribution of <code>lifeExp</code>.</p>
+<br><br>
+<span style="font-size:16pt;color:#B70000">
+**Part D - Getting down to business**</span>
+
+Attack each of the tasks below with a table and figure.
+
+* Base R tools (e.g., subset, logicals) and <code>dplyr</code> should be your main data manipulation tools
+```{r}
+#Attach dplyr
+library(dplyr)
+```
+* <code>ggplot2</code> should be your main visualization tool
+```{r}
+#Attach ggplot2
+library(ggplot2)
+```
+<br>
+<span style="font-size:14pt;color:#DB3A00">
+**Task menu**</span>
+
+1. Get the maximum and minimum of GDP per capita for all continents.
+```{r results = 'asis'}
+kable(gapminder%>%group_by(continent)%>%
+        summarise(Maximum=max(gdpPercap),Minimum=min(gdpPercap)))
+```
+<br>
+
+2. Look at the spread of GDP per capita within the continents.
+
+```{r results = 'asis'}
+kable(gapminder%>%group_by(continent)%>%
+        summarise(Range=max(gdpPercap)-min(gdpPercap),SD=sd(gdpPercap)))
+```
+<p style="margin-left:40px">: To find out the spread of GDP per Capita within the continents, I calculated range by subtracting <code>min</code> from <code>max</code>, and used <code>sd</code> for the standard deviation as above.</p>
+<br>
+
+```{r}
+ggplot(gapminder,aes(x=continent,y=gdpPercap))+geom_boxplot()
+```
+
+<p style="margin-left:40px">: Also, the five-number summary can be displayed via box plot.</p>
+
+<br>
+
+3. Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. Just try something other than the plain vanilla mean.
+
+* Trimmed mean & Weighted mean, weighting by population
+
+```{r}
+Trimmed.weighted.mean <- gapminder%>%group_by(year)%>%
+  summarize(Trimmed.mean=mean(lifeExp, trim=0.2),
+            Weighted.mean=weighted.mean(lifeExp,pop))%>%
+  mutate(Trimmed.mean=round(Trimmed.mean,2),
+         Weighted.mean=round(Weighted.mean,2))
+```
+
+```{r results = 'asis'}
+kable(Trimmed.weighted.mean)
+```
+
+* The trimmed and weighted mean can be displayed by line graph as below.
+
+```{r}
+ggplot(Trimmed.weighted.mean, aes(year)) + 
+  geom_line(aes(y = Trimmed.mean, colour = "Trimmed.mean")) + 
+  geom_line(aes(y = Weighted.mean, colour = "Weighted.mean")) +
+  ylab("Mean") + labs(colour="Variables")
+```
+
+<br>
+
+4. How is life expectancy changing over time on different continents?
+```{r}
+#Attach tidyr
+library(tidyr)
+Cont.life<-gapminder%>%group_by(continent,year)%>%
+  summarize(mean=mean(lifeExp))
+```
+
+```{r results = 'asis'}
+kable(Cont.life%>%mutate(mean=round(mean,2))%>%spread(year,mean))
+```
+
+```{r}
+ggplot(gapminder%>%group_by(continent,year)%>%
+         summarise(mean=mean(lifeExp))) +
+  geom_line(aes(x=year,y=mean,color=continent), size=1)
+```
+<p style="margin-left:40px">: The life expectancy is continuously rising in all continents, except Africa.</p>
+<br>
+
+5. Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy – you decide – a mean or median or some other quantile or perhaps your current age. The determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
+
+```{r}
+life.exp.weighted<-gapminder%>%group_by(year)%>%
+  mutate(weighted.mean=weighted.mean(lifeExp,pop),
+         lowlifeExp=ifelse(lifeExp<weighted.mean,1,0))
+```
+
+<p style="margin-left:40px">: I defined that the country whose life expectancy is below the mean of each year has a low life expectancy. Especially, to reflect the size of population in each country, I used <code>weighted.mean</code>. To see whether each country has a low life expectancy, I made a dummy variable named <code>lowlifeExp</code>, which prints out "0" when <code>lifeExp</code> is higher than <code>weighted.mean</code>, and "1" when <code>lifeExp</code> is lower than <code>weighted.mean</code>. </p>
+
+```{r}
+life.exp.weighted.continent<-life.exp.weighted%>%
+  group_by(year,continent)%>%
+  summarise(lowlife.mean=round(mean(lowlifeExp),2))
+```
+
+```{r results = 'asis'}
+#Spread the year-lowlife.mean pair
+kable(life.exp.weighted.continent %>%spread(year,lowlife.mean))
+```
+
+<p style="margin-left:40px">: By calculating the mean of <code>lowlifeExp</code> for each year and continent, the proportion of the countries having low life expectancy within contienents can be derived. </p>
+
+```{r}
+ggplot(life.exp.weighted.continent, aes(x=year,y=lowlife.mean))+
+  geom_line(aes(color=continent),size=1)
+```
+
+<p style="margin-left:40px">: This graph shows the rate of low life expectancy within continents. Oceania is the only continent that has never had low life expectancy. Also, the rates of low life expectance in other continents except Africa seem to be decreasing year by year.</p>
+<br>
+
+6. Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
+
+* I would like to see the changes in life expectancy and GDP per capita within North and South Korea. Before that, I would like to see the correlation between life expectancy and GDP per capita.
+
+```{r}
+ggplot(gapminder, aes(x=lifeExp,y=gdpPercap))+geom_point()+scale_y_log10()
+```
+
+<p style="margin-left:40px">: There seems to be a positive correlation between life expectancy and GDP per capita. Thus, I compared GDP per capita of the two Koreas.</p>
+
+```{r}
+Korea.gdp<-gapminder[grep('Korea',gapminder$country),c(1:2,6)]
+```
+
+```{r results = 'asis'}
+kable(Korea.gdp%>%mutate(gdpPercap=round(gdpPercap,2))%>%
+        spread(year,gdpPercap))
+```
+
+```{r}
+Koreas<-c("Korea, Dem. Rep.","Korea, Rep.")
+ggplot(filter(gapminder, country %in% Koreas),
+       aes(x=year,y=gdpPercap, color=country))+
+  geom_line(size=1)+geom_point(size=3)
+```
+
+<p style="margin-left:40px">: As above, GDP per capita of the two Koreas had been similar until mid 1970. However, South Korea's GDP per capita soared from 1977, and the discrepancy between the two Koreas are widening. According to this result, I expect that the life expectency of South Korea would be higher than that of North Korea from mid 1970s.</p>
+
+```{r}
+Korea.life.exp<-gapminder[grep('Korea',gapminder$country),c(1:2,5)]
+```
+
+```{r results = 'asis'}
+kable(Korea.life.exp%>%mutate(lifeExp=round(lifeExp,2))%>%
+        spread(year,lifeExp))
+```
+
+```{r}
+ggplot(filter(gapminder, country %in% Koreas),
+       aes(x=year,y=lifeExp, color=country))+
+  geom_line(size=1)+geom_point(size=3)
+```
+
+<p style="margin-left:40px">: However, the outcome is different from my expectation; the life expectancy in North Korea had been higher than that in South Korea until 1980s. From 1992, the life expectancy of North Korea dropped sharply, while that of South Korea has been consistantly rising. This phenomenon can be understood, considering that there can be some delay for the economic status to be reflected in the life expectancy.
+
+This perspective, however, cannot explain the sudden, simultaneous drop of GDP and life expectancy of North Korea in 1990s.To understand this, its domestic and foreign situation should be considered. With the reunification of Germany in 1990 and the downfall of the Soviet Union in the following year, almost every trade of North Korea stopped, which sent North Korea into deep recession. What is worse, large-scaled natural disasters brought a great famine named *Arduous March* to North Korea from 1995 to 1998. Due to the combination of economic recession and the great famine, approximately 400 thousand people died, which lowered its life expectancy considerably. Hence, it can be concluded that the national crisis can affect the life expectancy immediatly.
+
+In sum, it seems that the change in GDP per capita of one country does not leads to the change of life expectancy in an instant, except when a severe crisis that can threaten the lives of the citizens.</p>
+
+<br><br><br>
