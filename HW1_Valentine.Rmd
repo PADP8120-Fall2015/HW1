@@ -85,11 +85,52 @@ dim(gapminder)
 Dim may be more useful if you need both questions answered. Ncol or Nrow may be more useful if we are only trying to narrow in on a single aspect of the data.
 
 ### Part C - Explore individual variables
-#### Pick __at least__ one categorical variable and at least one quantitiative variable to explore.
+#### Pick __at least__ one categorical variable and at least one quantitative variable to explore.
+Categorical: continent
+Quantitative: lifeExp
 
 ####   * Characterize what's possible, i.e. all possible values or max vs. min ... whatever's appropriate.
+
+```{r}
+unique(gapminder$continent)
+```
+
+All possible values are: [1] Asia     Europe   Africa   Americas Oceania 
+Levels: Africa Americas Asia Europe Oceania
+
+
+```{r}
+max(gapminder$lifeExp)
+min(gapminder$lifeExp)
+```
+
+Max v. Min:
+Max [1] 82.603
+Min [1] 23.599
+
+
 ####   * What's typical? What's the spread? What's the distribution? Etc., tailored to the variable at hand.
+
+Because continent is categorical, we can use table to view the distribution
+```{r}
+table(gapminder$continent)
+```
+
+For our quantitative variable, we can use the 'summary' command to view information about the distribution and the quartile values.
+
+```{r}
+summary(gapminder$lifeExp)
+```
+
+We see from the quartiles that the distribution seems to skew left.
+
 ####   * Feel free to use summary stats, tables, figures. Don't worry about high production values. 
+
+We can also produce a histogram
+```{r}
+hist(gapminder$lifeExp)
+```
+This histogram confirms that our data skews left.
 
 ### Part D - Getting down to business
 #### Attack each of the tasks below with a table and figure.
