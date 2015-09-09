@@ -1,0 +1,326 @@
+---
+title: "Coxon_HW1"
+author: "Victoria Coxon"
+date: "September 3, 2015"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+# PART A - Load Gapminder Data
+
+```{r}
+gapminderData5Yr.data = read.delim(file="http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt")
+```
+
+This function seems to handle the data set better; possibly because this function is not expecting a specific delimiters (ie. a , or ;).
+
+I can use access to the data provided by this function to determine what the problem is at line/row 146. 
+
+```{r}
+head(gapminderData5Yr.data)
+dim(gapminderData5Yr.data)
+tail(gapminderData5Yr.data)
+gapminderData5Yr.data[146,]
+```
+
+Line 146 lists Bosnia and Herzegovina. This country name is much longer than both the Head and Tail countries.
+
+I suspect the error has something to do with the length of this country's name. _(They could have used a slash.)_
+
+For the __read.table__ function to work with this data set, I have to specify a delimiter argument because read.table does not expect a delimited file _(.csv(,)_ or _.txt(tab))_, whereas __read.delim__ does.
+
+```{r}
+gapminderData5Yr.data = read.table(file="http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt", sep="\t",header=T) 
+```
+
+With this code, I am telling R that the data set is a tab-delimited  file and to keep the headers/variable names "TRUE". Because this approach is a workaround the problem of comma separated value files or text _(tab separated)_ files, there may still be problems with 'weird' translations into R.
+
+Cote D'Ivoire presents such a case. It has an apostrophe; how does this approach handle it?
+```{r}
+gapminderData5Yr.data[grep("Cote",gapminderData5Yr.data$country),]
+```
+Not so well...
+Let's go back to the read.delim function...
+```{r}
+gapminderData5Yr.data = read.delim(file="http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt", sep="\t",header=T)
+```
+Let's see how this code handles Cote D'Ivoire...
+
+```{r}
+gapminderData5Yr.data[grep("Cote",gapminderData5Yr.data$country),]
+```
+Note to self...ALWAYS look at the raw data to see if there are any possible translation problems and structure the R code to anticipate and deal with them.
+
+
+# PART B - Data "Smell" Test
+```{r}
+class(gapminderData5Yr.data)
+```
+
+The gapminderData5Yr is a data.frame.
+
+```{r}
+str(gapminderData5Yr.data)
+```
+
+The str function allows us to examine the structure. But, I can also examine the data these ways.
+
+```{r}
+dim(gapminderData5Yr.data)
+```
+
+There are 1,704 observations (x) of 6 variables (y). Let's check to make sure...
+
+```{r}
+nrow(gapminderData5Yr.data)
+ncol(gapminderData5Yr.data)
+```
+I would use _nrow_ or _ncol_ if I wanted to create a new matrix with the dataset, but __dim__ seems to do the job if you just want to see the dimensions of what you're 
+dealing with.
+
+
+# PART C - Explore Individual Variables
+```{r}
+names(gapminderData5Yr.data)
+```
+
+Categorical Variables = country (+s are lots of variables), continent (+s are not a lot of variables)
+
+Quantitative Variables = year, pop, lifeExp, and gdpPercap.
+
+```{r}
+unique(gapminderData5Yr.data$country)
+```
+
+Great; now I have a location of where each country is in the data.
+
+I want to know the level of well-being for people in the dataset.  One measure of well-being is Per Capita GDP.
+
+```{r}
+plot(gdpPercap ~ year, gapminderData5Yr.data)
+```
+
+In general, it looks like there is an increasing amount of dispersion in Per Capita GDP. What is the summary statistics snapshot look like?
+
+```{r}
+summary(gapminderData5Yr.data$gdpPercap)
+```
+
+Just from the summary statistics I can see that there is a large right skew in the data. As as aside, I wonder who is "dragging" the mean Per Capita GDP up?
+
+Let's confirm that my initial interpretation of the data is correct.
+
+```{r}
+hist(gapminderData5Yr.data$gdpPercap)
+```
+
+It is!
+Let's look at another indicator of well-being; __lifeExp__.
+
+```{r}
+plot(lifeExp ~ year, gapminderData5Yr.data) 
+```
+
+I can see that life expectancy is generally going up. What else is going on?
+
+```{r}
+summary(gapminderData5Yr.data$lifeExp)
+
+hist(gapminderData5Yr.data$lifeExp)
+```
+
+This looks almost like the opposite mirror image of the previous histogram.  A connection/relationship between Per Capita GDP and Life Expectancy? _(Yes, I know this has an obvious answer, but I am tryng to get a better understanding of how this works in R.)_
+
+
+
+#PART D - Getting Down to Business
+## TASK MENU
+### 1. Get  the max and min Per Capita GDP for all continents.
+  
+I need to "wrangle" this data, so I need dplyr. I also need to make charts and graphs so I need knitr to "knit" it all together.
+
+```{r}
+library(dplyr); library(knitr)
+```
+
+Using my prior knowledge about development policy and economics, I need to see the frequencies of the continent values in the data. It  will make a difference in how I go about interpreting the data later.
+
+```{r}
+table(gapminderData5Yr.data$continent)
+barplot(table(gapminderData5Yr.data$continent))
+```
+
+I am going to sort the data by continents and then sort this new arrangement into showing me the max  and min Per Capita GDP.
+
+```{r}
+gapminderData5Yr.data %>% group_by(continent) %>% summarise(min = min(gdpPercap), max = max(gdpPercap))
+```
+
+Let's make a table of this information using the __kable__ function.
+
+````{r}
+kable(gapminderData5Yr.data %>% group_by(continent) %>% summarise(min = min(gdpPercap), max = max(gdpPercap)))
+```
+
+### 2. Look at the spread of Per Capita GDP within the continents taking the difference of the max and min values.
+
+```{r}
+gapminderData5Yr.data %>% group_by(continent) %>% summarise(min = min(gdpPercap), max = max(gdpPercap), range = max-min)
+```
+
+OK, now that I know there are many more observations for some continents as opposed to others, I need an easy and colorful way to separate them out.  ggplot2...?
+
+```{r}
+#library(ggplot2)
+  #ERROR - That won't work....
+#install.packages("ggplot2")
+  #Let's try it now...
+library(ggplot2)
+ggplot(data=gapminderData5Yr.data,aes(group=continent,y=gdpPercap,x=continent)) + geom_boxplot()
+```
+
+I can see from the box plot that there are several instances of statistical outliers in each continent's Per  Capita GD distribution.
+
+This will be an important thing to consider when I need to trim the data. If I trim too much from the bottom, I don't capture a lot of Africa.  Perhaps, it would be better to trim the top 5% as opposed to trimming at both ends?  How can I do this in such as way that I don't compromise the integrity of the conclusions I make from the data?
+
+### 3.  Compute a trimmed mean of life expectancy for different years.
+
+Considering the 95% confidence level and critical value thresholds, the dangers of "trimming" too much from the data is a concern. Perhaps I should really only trim the outliers that skew _(left or right)_ the data? Without manipulating the data more, I cannot determine where the best cut would be. Maybe the top and bottom 1%?
+
+```{r}
+gapminderData5Yr.data %>% group_by(year) %>% summarise(trimmed.mean=mean(lifeExp,trim=0.01))
+
+trimmed.lifeExp.means.by.year <- gapminderData5Yr.data %>% group_by(year) %>% 
+
+summarise(trimmed.mean = mean(lifeExp,trim=0.01))
+
+ggplot(data=trimmed.lifeExp.means.by.year) + geom_path(aes(x=year,y=trimmed.mean)) + 
+
+geom_point(aes(x=year,y=trimmed.mean), size=5)
+```
+
+It is obvious from the graph that life expectancy has been increasing since 1950. 
+
+```{r}
+67 / (2007-1950)
+(2007-1950) / 12
+```
+
+Life expectancy has been increasing by approximately 1.175 years every 4.75 years. Which countries are responsible for the "heavy lifting"?  Are all the continents increasing at approximately the same rate regardless of the starting point/baseline?  Not exactly...there is some variation in the rate of increase amongst the countries.
+
+### 4. How is life expectancy changing over time on different continents?
+  
+Okay...I need to "clear" up my messy data...tidyr!
+
+```{r}
+#library(tidyr)
+  #ERROR! Do I need the package? Yes!
+#install.packages("tidyr")
+  #Let's try it now...
+library(tidyr)
+  #Success!
+```
+  
+I need to make the data fit into a table that is organized by the categorical variable (x) and the year (y). 
+
+I also need it to show the mean life expectancy for each continent at the five year intervals that the data was observed.
+
+First, I need to create a file that contains only these parameters.
+
+```{r}
+mean.lifeExp.longfile = gapminderData5Yr.data %>% group_by(continent,year) %>% summarise(mean = mean(lifeExp))
+```
+
+I need to edit the existing variable; the life expectancy mean.  I only want 3 decimal spaces.
+
+I have preserved the grouping columns (year) and rows (continents). The spread function lines up the mean with the year.
+
+Now, let see if it tells me what I want to know...
+
+```{r}
+mean.lifeExp.longfile %>% mutate(mean = round(mean,3)) %>% spread(year,mean)
+```
+
+Looking at the data, I can see that some continents have experienced larger increases in life expectancy than others. Let's see if we can get a rate of change _(slope; mean change/year change)_.  Let's make a line graph!
+
+First,  I need to specify what I want (file)...
+
+```{r}
+lifeExp.mean.by.year.by.continent <- gapminderData5Yr.data %>% group_by(continent,year) %>% summarise(mean = mean(lifeExp))
+```
+
+Now, let's plot it...
+
+```{r}
+ggplot(data=lifeExp.mean.by.year.by.continent) +geom_line(aes(x=year,y=mean,color=continent))
+```
+
+The graph shows that my suspicions are correct.  Asia and the  Americas are experiencing larger gains in life expectancy. Considering the economic expansion that occurred in BRIC (Brazil, Russia, India, China) countries. Mexico, Venezuela, Argentina, and Peru could be largely responsible for the gains seen in the Americas.  China and India may be largely responsible for the gains seen in Asia. Africa was experiencing gains as well until the mid-1980's and through the 1990's.  There could be various reasons for this; the Ethiopian famine, the AIDS epidemic, Ebola, Rwandan genocide, Kony and his army of child soldiers, Sudan, religious genocide. Europe and Oceania both experienced increases in life expectancy but at a slower rate than the other countries.
+
+
+### 5. Report the absolute and/or relative abundance of countries with low life expectancy over time by continent.
+
+#### Compute some measure of worldwide life expectancy (mean, median, quintile). Then determine how many countries on each continent have a life expectancy less than this benchmark for each year.
+
+It is reasonable to specify low life expectancy as being 1 sd below the mean. However, considering that many people make choices that are not in their own self-interest (smoking, drinking, illicit drugs) or under their explicit control (poor governance structures and lack of public safeguards and safety nets) regardless of their ability to pay for compensatory healthcare, it may be more reasonable to incorporate 2 SD below the mean as a benchmark. 2  SD below the mean should also capture those most negatively impacted (the indicators of well-being that  are important to life expectancy; HH inputs and production functions and trade offs, the role of women in contributing to the HH production function, and political structures that support trade and other HH wage  raising  activities (farming, trade)).
+
+Let's try 1 sd first using the following template:
+new.table <- old.table %>% grouped by year %>% mean calculated for the year, sd for year, if resulting value < (mean-sd), code as 1,  otherwise 0.
+
+```{r}
+life.exp.table <- gapminderData5Yr.data %>% group_by(year) %>% mutate(year.mean = mean(lifeExp),year.sd = sd(lifeExp),low.lifeExp = ifelse(lifeExp < year.mean - year.sd,1,0))
+```
+
+I have created a new variable; low.lifeExp = ifelse(lifeExp < year.mean - year.sd,1,0).
+
+By taking the mean of low.lifeExp for EACH continent and EACH year, I should get the proportion of countries on each continent that have low life expectancy as I have defined it (1 sd below the mean) for each continent/year pairing. This requires me to make ""new" parameters that contain the information I am interested in. Hence, a new variable...low.lifeExp.by.continent.
+
+```{r}
+low.lifeExp.by.continent = life.exp.table %>% group_by(continent,year) %>% summarise(prop.low.lifeExp = round(mean(low.lifeExp),3))
+```
+
+I need  to make a table to show the data generated by the previous command... use spread().
+
+__Key__ = what I want to turn into column headings
+__Values__ = what I want to be in the table cells.
+
+```{r}
+low.lifeExp.by.continent %>% spread(key = year, value = prop.low.lifeExp)
+```
+
+Just looking at the table,  I can see Africa's rising proportion of low life expectancy instances. I can also see Asia's declining proportion of low life expectancy; this is expected considering the outsize economic growth fueled by manufacturing and trade _(and the end of the Vietnam War)_.
+  
+Just to "hammer" it home, let's make a graph for those are "table challenged".  FYI, the following graph could be highly effective if I were an NGO trying to get funds for humanitarian relief or economic development...even though the governance structures in many African countries are not conducive to "sustainable" development gains. 
+
+```{r}
+ggplot(data=low.lifeExp.by.continent,aes(x=year,y=prop.low.lifeExp)) + geom_line(aes(color=continent,lty=continent),size=2)
+```
+
+### 6. Find countries with intresting stories.
+
+```{r}
+ggplot(gapminderData5Yr.data[gapminderData5Yr.data$year==1972,],aes(x=gdpPercap,y=lifeExp)) + geom_point(aes(label=country))
+```
+
+Which country has a Per Capita GDP of over 90,000 units?
+
+```{r}
+ggplot(gapminderData5Yr.data[gapminderData5Yr.data$year==1972&gapminderData5Yr.data$gdpPercap>90000,],aes(x=gdpPercap,y=lifeExp)) + geom_text(aes(label=country))
+```
+
+Kuwait; of course!  Wasn't 1972 getting close to the OPEC Oil Embargo?
+
+I wonder what Kuwait looks like in 1977 after the Oil Embargo?
+
+```{r}
+ggplot(gapminderData5Yr.data[gapminderData5Yr.data$year==1977&gapminderData5Yr.data$gdpPercap>40000,],aes(x=gdpPercap,y=lifeExp)) + geom_text(aes(label=country))
+```
+
+Interesting...although the Per Capita GDP has fallen significantly, Kuwait still has a much higher relative Per Capita GDP, but looks like it had no declines in life expectancy. Considering that Kuwait is so far away from the normal gdpPercap distribution, it is completely reasonable and  logical to make the observation that the declines in Per Capita GDP should have little to no effect on life expectancy.  A  more interesting question would be to find out the level of Per Capita GDP that has the most profound effect on life expectancy. In the U.S., we speak of  a living wage.  The term living wage makes many positive assumptions regarding the standard of living of each American regardless of the actual attainability and the elasticity of the local, regional, and national markets to accommodate policy changes that incorporate a living wage. If we were able to pinpoint or "tighten" our understanding of the range of Per Capita GDP that yield the greatest gains in well-being for those who are the worst off, it could be a start to making it happen.
+
+  q()
+  
