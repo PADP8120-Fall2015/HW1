@@ -1,0 +1,132 @@
+---
+title: "Emily.Zier.Homework1"
+author: "Emily Zier"
+date: "August 28, 2015"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+
+
+```{r, error=FALSE}
+
+#PART A
+gapminder <- read.delim("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt")
+
+head(gapminder)
+
+#I am not getting the same object when I run delim.table because line 146 did not have 6 elements because the name is too long.
+
+gapminder[146,]
+
+gapminder <- read.table(file='http://tiny.cc/gapminder',sep='\t',header=T) 
+
+#We have to tell R how to separate the data specifically, instead of assuming it is just by comma or tab. When we do that we can read the data with the table command because R knows how to separate things better. 
+
+
+
+
+
+
+#PART B
+gapminder <- read.delim(file="http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt")
+
+class(gapminder)
+#It is a data frame.
+
+str(gapminder)
+#There are 6 variables and 1704 observations. 
+
+tail(gapminder)
+#Tail can help to see how many observations. 
+
+dim(gapminder)
+#Dim can also help us easily see how many rows and columns(aka, observations and variables)
+
+
+
+
+
+
+#PART C
+unique(gapminder$country)
+#Country is my categorical variable. This gives you all of the possible values.
+table(gapminder$country)
+#This shows how many observations per country there are. 
+max(gapminder$lifeExp)
+#The maximum life expectancy is 82.603 years.
+min(gapminder$lifeExp)
+#The minimum life expectancy is 23.599 years.
+summary(gapminder$lifeExp)
+#This shows all of the spread of the data. 
+hist(gapminder$lifeExp)
+#This gives us a histogram of the Life Expectancy variable. This is helpful in imagining the bell curve and how it would look. 
+
+
+
+
+
+
+#PART D
+library(dplyr)
+library(knitr)
+
+gapminder %>% group_by(continent) %>% summarise(min = min(gdpPercap),max = max(gdpPercap))
+#This shows you the minimum and maximum GDP for each continent in a table format.
+
+kable(gapminder %>% group_by(continent) %>% summarise(min = min(gdpPercap),max = max(gdpPercap)))
+#With kable it looks a little neater as a table. 
+
+gapminder %>% group_by(continent) %>% summarise(min = min(gdpPercap), max = max(gdpPercap),range = max - min)
+#By setting range= max-min you can also see the spread of each continent in the table format. 
+
+mean(gapminder$lifeExp, trim=.10)
+#The trimmed mean (trimming ten percent on either side, comes out to be 59.92 years of life expectancy)
+
+
+gapminder %>% group_by(continent,year) %>% summarise(avgle = mean(lifeExp))
+
+contyear <- gapminder %>% group_by(continent,year) %>% summarise(avgle  = mean(lifeExp))
+
+contyear
+
+plot(contyear$avgle~contyear$year,col=contyear$continent)
+#life expectancy seems to incresae for each continent by year 2000. 
+
+gapminder2 <- gapminder %>% mutate(low.le = ifelse(lifeExp<63,'Low','High'))
+
+gapminder2$low.le
+
+summary.table <- round(table(gapminder2$year,gapminder2$low.le)/142,2)
+
+as.numeric(table(gapminder2$year))
+
+summary.table
+#All of that code I just did (with you, in class) above creates a table that shows the probability of low life expectancy, which is less than 63, or high life expectancy, which is not lower than 63 for each year. This is helpful because it is clean looking and easily shows me the probabilities rather than raw numbers. 
+
+
+
+
+plot(gapminder$gdpPercap, gapminder$country)
+
+plot(gapminder$gdpPercap, gapminder$continent)
+
+plot(gapminder$continent, gapminder$gdpPercap)
+
+plot(gapminder$country, gapminder$gdpPercap)
+
+
+#These last plots are my attempt at finding an interesting story. The first two create plots, but they are kind of hard to understand. The first one graphs GDP by country. All I really see in this is that there are some significant outliers on the right. However, most nations are grouped towards the lower end. The second graph, by continent, is essentially the same graph just tighter together. I then decided to switch which variable was measured on the x and y axis for both. This was really cool! I got box plots without even trying! It was useful when I did continent, but not when I did country because there were too many to read the graph correctly. I see that Asia has some outliers and the median is actually lower than other continents, whereas Europe is more neatly distributed. 
+
+#Overall, this homework was hard. I did not keep track of everything I googled because I just now saw that I was supposed to do that. I'm just really struggling with learning, but I hope I'll get there. 
+
+
+
+
+```
+
+
