@@ -134,7 +134,7 @@ This histogram confirms that our data skews left.
 
 ### Part D - Getting down to business
 
-### Task Menu
+### Tasks & Companion Graphs
 #### 1. Get the maximum and minimum of GDP* per capita for all continents.
 
 *Note: As suggested in the instructions, I am substituting quantifiable variables. I am switching out gdp for life expectancy.
@@ -198,12 +198,36 @@ lifexp.mean.by.year.continent <- gapminder %>% group_by(continent,year) %>% summ
 ggplot(data=lifexp.mean.by.year.continent) + geom_line(aes(x=year,y=mean,color=continent))
 ```
 
-#### 5. Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy â?? you decide â?? a mean or median or some other quantile or perhaps your current age. The determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
+#### 5. Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy - you decide - a mean or median or some other quantile or perhaps your current age. The determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
+
+We can define low-life expectancy as at least 1 standard deviation below the mean for that year. 
+
+```{r}
+
+life.exp.table <- gapminder %>% group_by(year) %>% mutate(year.mean = mean(lifeExp),year.sd = sd(lifeExp),low.lifeExp = ifelse(lifeExp < year.mean - year.sd,1,0))
+
+summary(life.exp.table)
+
+low.lifeExp.by.continent = life.exp.table %>% group_by(continent,year) %>% summarise(prop.low.lifeExp = round(mean(low.lifeExp),2))
+
+summary(low.lifeExp.by.continent)
+
+low.lifeExp.by.continent %>% spread(key = year, value = prop.low.lifeExp)
+```
+
+We can also use the kable function to print a nicer formatted verison to screen
+```{r message = FALSE}
+library(dplyr);library(knitr)
+
+kable(low.lifeExp.by.continent %>% spread(key = year, value = prop.low.lifeExp))
+```
+
+Now, for the table/graph
+```{r}
+ggplot(data = low.lifeExp.by.continent,aes(x=year,y=prop.low.lifeExp)) + geom_line(aes(color=continent,lty=continent),size=3)
+```
 
 #### 6. Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
-
-### Companion graphs
-#### For each table, make sure to include a relevant figure. Your figure does not have to depict every last number from the data aggregation result. Use your judgement. It just needs to complement the table, add context, and allow for some sanity checking both ways. Notice which figures are easy/hard to make, which data formats make better inputs for plotting functions vs. for human-friendly tables.
 
 ### Report your process
 #### You're encouraged to reflect on what was hard/easy, problems you solved, helpful tutorials you read, etc. Give credit to your sources, whether it's a blog post, a fellow student, an online tutorial, etc.
