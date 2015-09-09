@@ -5,18 +5,76 @@ date: "September 9, 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+### Part A: Load Gapminder Data
+#### Instructions:  Load the Gapminder data with both functions without specifying args other than `file`. Do you get the same resulting object in your workspace? Use all the ways we've learned to inspect an object to back up your claims with hard facts.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
+First, we try the read.delim command, which works properly.
 ```{r}
-summary(cars)
+#read.delim works properly
+gapminder <- read.delim(file='http://tiny.cc/gapminder') 
 ```
 
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-plot(cars)
+Next, we try the read.table command, which produces an error. As a result of this error, we add the error=TRUE command. Without this command, we would not be able to Knit this file properly
+```{r error=TRUE}
+#read.table fails, produces error about line 146
+gapminder = read.table(file='http://tiny.cc/gapminder')  
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+####If you're not getting the same object, why not?
+Read.table tells us that there is an error in line 146. This is related to the overall combined length of "Bosnia and Herzegovina" as a country name. We have to tell it to seperate, using the sep="\t" command
+
+####Develop the call to `read.table()` that is equivalent to `read.delim()`, i.e. how do you need to set various arguments and describe this in prose as well.
+```{r}
+gapminder3 <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE,sep='\t') 
+```
+
+### Part B: Data smell test
+#### Explore your new data.frame.
+####   * Is it a data.frame, a matrix, a vector, a list?
+####   * What's its mode, class?
+####   * How many variables?
+####   * How many rows/observations?
+####   * Can you get these facts about "extent" or "size" in more than one way? Can you imagine different functions being useful in different contexts?
+  
+### Part C - Explore individual variables
+#### Pick __at least__ one categorical variable and at least one quantitiative variable to explore.
+
+####   * Characterize what's possible, i.e. all possible values or max vs. min ... whatever's appropriate.
+####   * What's typical? What's the spread? What's the distribution? Etc., tailored to the variable at hand.
+####   * Feel free to use summary stats, tables, figures. Don't worry about high production values. 
+
+### Part D - Getting down to business
+#### Attack each of the tasks below with a table and figure.
+
+####   * Base R tools (e.g., `subset`, logicals) and `dplyr` should be your main data manipulation tools
+####   * `ggplot2` should be your main visualization tool
+  
+#### Make observations about what your tables/figures show and about the process.
+
+#### If you want to do something comparable but different, i.e. swap one quantitative variable for another, be my guest! If you are feeling inspired and curious, then we're doing this right. Go for it.
+
+### Task Menu
+#### 1. Get the maximum and minimum of GDP per capita for all continents.
+
+#### 2. Look at the spread of GDP per capita within the continents.
+
+#### 3. Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. Just try something other than the plain vanilla mean.
+
+#### 4. How is life expectancy changing over time on different continents?
+
+#### 5. Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy â?? you decide â?? a mean or median or some other quantile or perhaps your current age. The determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
+
+#### 6. Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
+
+### Companion graphs
+#### For each table, make sure to include a relevant figure. Your figure does not have to depict every last number from the data aggregation result. Use your judgement. It just needs to complement the table, add context, and allow for some sanity checking both ways. Notice which figures are easy/hard to make, which data formats make better inputs for plotting functions vs. for human-friendly tables.
+
+### Report your process
+#### You're encouraged to reflect on what was hard/easy, problems you solved, helpful tutorials you read, etc. Give credit to your sources, whether it's a blog post, a fellow student, an online tutorial, etc.
+
+
+### Note: We were advised to include the following text, as it is helpful for debugging
+```{r echo=FALSE}
+sessionInfo()
+```
+
