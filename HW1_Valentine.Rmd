@@ -11,31 +11,79 @@ output: html_document
 First, we try the read.delim command, which works properly.
 ```{r}
 #read.delim works properly
-gapminder <- read.delim(file='http://tiny.cc/gapminder') 
+gapminder <- read.delim(file='http://tiny.cc/gapminder',header=T) 
 ```
 
-Next, we try the read.table command, which produces an error. As a result of this error, we add the error=TRUE command. Without this command, we would not be able to Knit this file properly
+Next, we try the read.table command, which produces an error. As a result of this error, we add the error=TRUE command. Without this command, we would not be able to Knit this file properly.
+
 ```{r error=TRUE}
 #read.table fails, produces error about line 146
-gapminder = read.table(file='http://tiny.cc/gapminder')  
+gapminder= read.table(file='http://tiny.cc/gapminder',header=T)  
 ```
 
 ####If you're not getting the same object, why not?
-Read.table tells us that there is an error in line 146. This is related to the overall combined length of "Bosnia and Herzegovina" as a country name. We have to tell it to seperate, using the sep="\t" command
+Read.table tells us that there is an error in line 146. This is related to the overall combined length of "Bosnia and Herzegovina" as a country name. We have to tell it to seperate, using the sep="\t" command. This issue is because our file was deliminated, which read.table does not expect (although read.delim antincipates), so CSV and text deliminated files can cause problems in the system.
 
 ####Develop the call to `read.table()` that is equivalent to `read.delim()`, i.e. how do you need to set various arguments and describe this in prose as well.
 ```{r}
-gapminder3 <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",header =TRUE,sep='\t') 
+gapminder <- read.table("http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt",sep='\t',header=T) 
+```
+
+Because of these complications (as well as the Cote d'Ivoire pointed out by Dr. Scott) we will proceed with the read.delim method.
+
+```{r}
+gapminder <- read.delim(file='http://tiny.cc/gapminder',header=T) 
 ```
 
 ### Part B: Data smell test
 #### Explore your new data.frame.
 ####   * Is it a data.frame, a matrix, a vector, a list?
+```{r}
+class(gapminder)
+```
+This command confirms "data.frame"
+
 ####   * What's its mode, class?
+```{r}
+str(gapminder)
+```
+
+This command produces the modes and class for each variable. When complete, we receive this information:
+'data.frame':	1704 obs. of  6 variables:
+ $ country  : Factor w/ 142 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ year     : int  1952 1957 1962 1967 1972 1977 1982 1987 1992 1997 ...
+ $ pop      : num  8425333 9240934 10267083 11537966 13079460 ...
+ $ continent: Factor w/ 5 levels "Africa","Americas",..: 3 3 3 3 3 3 3 3 3 3 ...
+ $ lifeExp  : num  28.8 30.3 32 34 36.1 ...
+ $ gdpPercap: num  779 821 853 836 740 ...
+
+
 ####   * How many variables?
+
+```{r}
+ncol(gapminder)
+```
+
+6 Variables
+
 ####   * How many rows/observations?
+
+```{r}
+nrow(gapminder)
+```
+
+1704 variables  
+
 ####   * Can you get these facts about "extent" or "size" in more than one way? Can you imagine different functions being useful in different contexts?
   
+Yes. In addition to the ways demonstrated above, and in addition to using the environment pane within R Studio, you can also do the following:
+
+```{r}
+dim(gapminder)
+```
+
+Dim may be more useful if you need both questions answered. Ncol or Nrow may be more useful if we are only trying to narrow in on a single aspect of the data.
+
 ### Part C - Explore individual variables
 #### Pick __at least__ one categorical variable and at least one quantitiative variable to explore.
 
