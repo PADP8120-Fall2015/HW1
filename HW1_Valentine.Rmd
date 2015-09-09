@@ -122,7 +122,7 @@ For our quantitative variable, we can use the 'summary' command to view informat
 summary(gapminder$lifeExp)
 ```
 
-We see from the quartiles that the distribution seems to skew left.
+We see from the quartiles that the distribution seems to skew left. 
 
 ####   * Feel free to use summary stats, tables, figures. Don't worry about high production values. 
 
@@ -133,23 +133,70 @@ hist(gapminder$lifeExp)
 This histogram confirms that our data skews left.
 
 ### Part D - Getting down to business
-#### Attack each of the tasks below with a table and figure.
-
-####   * Base R tools (e.g., `subset`, logicals) and `dplyr` should be your main data manipulation tools
-####   * `ggplot2` should be your main visualization tool
-  
-#### Make observations about what your tables/figures show and about the process.
-
-#### If you want to do something comparable but different, i.e. swap one quantitative variable for another, be my guest! If you are feeling inspired and curious, then we're doing this right. Go for it.
 
 ### Task Menu
-#### 1. Get the maximum and minimum of GDP per capita for all continents.
+#### 1. Get the maximum and minimum of GDP* per capita for all continents.
+
+*Note: As suggested in the instructions, I am substituting quantifiable variables. I am switching out gdp for life expectancy.
+
+```{r message = FALSE}
+library(dplyr);library(knitr)
+
+gapminder %>% group_by(continent) %>% summarise(min = min(lifeExp),max = max(lifeExp))
+
+#with kable function
+kable(gapminder %>% group_by(continent) %>% summarise(min = min(lifeExp),max = max(lifeExp)))
+```
+
+we can also use the kable function to print a nicer formatted verison to screen
+```{r message = FALSE}
+library(dplyr);library(knitr)
+
+kable(gapminder %>% group_by(continent) %>% summarise(min = min(lifeExp),max = max(lifeExp)))
+```
 
 #### 2. Look at the spread of GDP per capita within the continents.
 
+*Note: As suggested in the instructions, I am substituting quantifiable variables. I am switching out gdp for life expectancy.
+
+```{r}
+gapminder %>% group_by(continent) %>% summarise(min = min(lifeExp), max = max(lifeExp),range = max - min)
+```
+
+Note: had to complete install.packages("ggplot2") to complete the following table
+
+```{r message = FALSE}
+library(ggplot2)
+ggplot(data = gapminder,aes(group=continent,y=lifeExp,x=continent)) + geom_boxplot()
+```
+
 #### 3. Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. Just try something other than the plain vanilla mean.
+Note: In the instructions, it is suggested 5% is too much, so I am trimming by 2.5%
+
+```{r}
+gapminder %>% group_by(year) %>% summarise(trimmed.mean = mean(lifeExp,trim=0.025))
+```
+
+```{r}
+trimmed.lifexp.means.by.year <- gapminder %>% group_by(year) %>% summarise(trimmed.mean = mean(lifeExp,trim=0.025))
+ggplot(data=trimmed.lifexp.means.by.year) + geom_path(aes(x=year,y=trimmed.mean)) + geom_point(aes(x=year,y=trimmed.mean),size=5)
+```
 
 #### 4. How is life expectancy changing over time on different continents?
+
+Note: had to complete install.packages("tidyr") to complete the following table
+
+```{r}
+library(tidyr)
+mean.lifeExp.longfile = gapminder %>% group_by(continent,year) %>% summarise(mean = mean(lifeExp))
+#As suggested by key file, we round mean to 2 digits so it prints nicely
+mean.lifeExp.longfile %>% mutate(mean = round(mean,2)) %>% spread(year,mean)
+```
+
+```{r}
+lifexp.mean.by.year.continent <- gapminder %>% group_by(continent,year) %>% summarise(mean = mean(lifeExp))
+ggplot(data=lifexp.mean.by.year.continent) + geom_line(aes(x=year,y=mean,color=continent))
+```
 
 #### 5. Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy â?? you decide â?? a mean or median or some other quantile or perhaps your current age. The determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
 
