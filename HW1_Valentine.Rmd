@@ -229,8 +229,24 @@ ggplot(data = low.lifeExp.by.continent,aes(x=year,y=prop.low.lifeExp)) + geom_li
 
 #### 6. Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
 
+First, I want to look at data from 1997, and I am comparing the two quantifiable variables from this data set (GDP/Life Expectancy) and processing this by country. By doing so, we can "find countries with interesting stories."
+```{r}
+ggplot(gapminder[gapminder$year==1997,],aes(x=gdpPercap,y=lifeExp)) + geom_point(aes(label=country)) 
+```
+
+After viewing the resulting charts, we can identify certain countries overperform in terms of life expectancy based upon GDP per capita. To examine this, I filter for countries with GDP above 35k, then plot country names.:
+
+```{r}
+ggplot(gapminder[gapminder$year==1997&gapminder$gdpPercap>35000,],aes(x=gdpPercap,y=lifeExp)) + geom_text(aes(label=country)) 
+```
+
+Once we isolate these countries, we find two nations that may not be a surprise (Norway and the United States) and then one that was not expected (Kuwait). We could speculate that GDP and healthcare are high for the United States and Norway, and perhaps a robust oil/economy in Kuwait has helped it reach this strata.
+
 ### Report your process
 #### You're encouraged to reflect on what was hard/easy, problems you solved, helpful tutorials you read, etc. Give credit to your sources, whether it's a blog post, a fellow student, an online tutorial, etc.
+This activity was fun, but largely due to the resources we were provided. Having the key available reduced anxiety over where to start, but then I was free to experiment (changing out quant. variables, looking at different years, looking at high levels of lifeexp/gdp instead of low) and practice using the tools. It also was helpful having a first sit down group meeting with Jon, Emily, and Youkyoung (with the assistance of Tyler) in the graduate lounge. 
+
+In general, my method consisting of combining knowledge learned in class, tutorials from r-bloggers.com, reviewing the answer key, and using the ? command to find out more about certain operations.
 
 
 ### Note: We were advised to include the following text, as it is helpful for debugging
